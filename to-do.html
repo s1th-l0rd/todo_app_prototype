@@ -1,0 +1,129 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/polymer/lib/utils/gestures.html">
+<link rel="import" href="../bower_components/polymer2-ts/polymer2-ts.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-layout/demo/sample-content.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+
+
+
+<dom-module id="to-do">
+  <template>
+    <style>
+      html * {
+        font-family: 'Roboto', Helvetica, sans-serif;
+      }
+
+      .TodoCardsPlaceholder {
+        padding-bottom: 16px;
+        padding-top: 16px;
+        display: inline-block;
+        color: white;
+        --paper-card-background-color: rgb(143, 241, 180);
+      }
+
+      .addTaskHere {
+        display: inline-flex;
+        padding-bottom: 2%;
+        border-spacing: 12px;
+        align-items: center;
+        border-spacing: 10px;
+      }
+
+      body {
+        /* No margin on body so toolbar can span the screen */
+        margin: 0;
+      }
+
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+      }
+
+      app-toolbar {
+        /* Toolbar is the main header, so give it some color */
+        background-color: rgb(0, 112, 43);
+        font-family: 'Roboto', Helvetica, sans-serif;
+        color: white;
+        --app-toolbar-font-size: 24px;
+      }
+    </style>
+
+    <app-localstorage-document key="toDoList" data="{{toDoList}}"> </app-localstorage-document>
+    <app-localstorage-document key="theScenes" data="{{theScenes}}"> </app-localstorage-document>
+    <app-localstorage-document key="currentScene" data="{{currentScene}}"> </app-localstorage-document>
+
+    <app-drawer-layout>
+      <app-drawer slot="drawer">
+        <paper-button style="width:100%;" on-click="_addNewScene" style="background-color: var(--paper-green-500);
+        color: white;" raised toggles>
+          <iron-icon icon="add"></iron-icon>Add Scene</paper-button>
+        <dom-repeat items="{{theScenes}}" as="scenes">
+          <template>
+            <!-- src: https://stackoverflow.com/questions/43505067/how-to-pass-parameters-in-polymer-2-0-on-tap-function -->
+            <paper-button id="SceneButtons" on-click="_activeScene" data-item$="{{scenes.sceneID}}" style="width:100%;" raised toggles>{{scenes.sceneText}}</paper-button>
+          </template>
+        </dom-repeat>
+        <paper-button style="width:100%;" on-click="_RemoveCurrentScene" style="background-color: var(--paper-green-500);
+        color: white;" raised toggles>
+          <iron-icon icon="remove"></iron-icon>Remove Scene</paper-button>
+      </app-drawer>
+      <app-header-layout fullbleed effects="waterfall">
+        <app-header slot="header" condenses>
+          <app-toolbar sticky>
+            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+            <div main-title>To-Do Prototype</div>
+            <paper-icon-button id="taskAdder" icon="add-circle" on-click="_addTask"></paper-icon-button>
+            </div>
+          </app-toolbar>
+        </app-header>
+        <h4>To Do: </h4>
+        <dom-repeat id="Repeater" items="{{toDoList}}" as="todoItem" filter="_isNotCompleted" observe="completed">
+          <template>
+            <paper-card class="TodoCardsPlaceholder">
+              <div class="card-content">
+                <paper-input label="Enter Task here" id={{todoItem.TaskID}} auto-validate error-message="Enter a task!" no-label-float required
+                  value="{{todoItem.todoText}}"></paper-input>
+              </div>
+              <div class="card-actions">
+                <paper-checkbox checked={{todoItem.completed}}></paper-checkbox>
+                <paper-icon-button icon="cancel" on-click="_delTask"></paper-icon-button>
+              </div>
+            </paper-card>
+          </template>
+        </dom-repeat>
+        </app-header>
+        <h4>Completed:</h4>
+        <dom-repeat items="{{toDoList}}" as="todoItem" filter="_isCompleted" observe="completed">
+          <template>
+            <paper-card class="TodoCardsPlaceholder">
+            <div class="card-content">
+              <paper-input label="Enter Task here" no-label-float value="{{todoItem.todoText}}"></paper-input>
+              <div class="card-actions">
+                <paper-checkbox checked={{todoItem.completed}}></paper-checkbox>
+                <paper-icon-button icon="cancel" on-click="delTask"></paper-icon-button>
+            </div>
+            </paper-card>
+          </template>
+        </app-header-layout>
+            </dom-repeat>
+          </app-drawer-layout>
+        </dom-module>
+  </template>
